@@ -40,14 +40,15 @@ minchul/cvlface_adaface_vit_base_kprpe_webface12m/pretrained_model/model.pt.sha2
 
 - aligned crop 尺寸：`112x112`。
 - crop 模板：ArcFace 五点模板。
-- 对齐点：从 106 点派生 5 点，最终仿射对齐使用 5 点。
+- 对齐点：从 106 点派生 5 点，最终使用 5 点估计无反射 similarity transform
+  （旋转、等比缩放、平移；不引入 shear 或非均匀缩放）。
 - 图像格式：质量模型和特征模型输入必须是 RGB。
 - 原始 crop dtype：`uint8`，范围 `0-255`。
 - 模型输入 dtype：`float32`。
 - 模型输入范围：`[-1, 1]`。
 - mean/std：`mean=[0.5,0.5,0.5]`，`std=[0.5,0.5,0.5]`。
 - 不使用 ImageNet normalization。
-- `PREPROCESS_ID`: `arcface_112_rgb_mean0.5_std0.5`。
+- `PREPROCESS_ID`: `arcface_112_similarity_rgb_mean0.5_std0.5`。
 
 ## Landmark 规则
 
@@ -80,4 +81,3 @@ minchul/cvlface_adaface_vit_base_kprpe_webface12m/pretrained_model/model.pt.sha2
 - 修改 `PREPROCESS_ID` 含义但不改 ID。
 
 发生 breaking change 时，应创建新的 `preprocess_id` 或 `model_id`，并要求外部业务重建向量索引。
-

@@ -13,7 +13,7 @@ HTTP request
   -> detector
   -> 106-point landmark
   -> 5-point derivation
-  -> ArcFace 112x112 alignment
+  -> ArcFace 112x112 similarity alignment
   -> quality score
   -> KPRPE embedding
   -> L2 normalize + serialize
@@ -27,7 +27,7 @@ HTTP request
 - `api.py`：定义 HTTP 路由、中间件、认证、加密上传、请求体限制、错误映射和响应序列化。
 - `analysis.py`：定义 analyzer 协议、结果 dataclass、默认模型加载流程和未就绪 analyzer。
 - `models.py`：定义本地模型 artifact manifest，并校验文件存在、非空和 `.sha256`。
-- `preprocessing.py`：定义图片解码、ArcFace 模板、106 点到 5 点派生、aligned crop、normalization 和 KPRPE 输入。
+- `preprocessing.py`：定义图片解码、ArcFace 模板、106 点到 5 点派生、无 shear 的 aligned crop、normalization 和 KPRPE 输入。
 - `pipeline.py`：把 detector、landmark、quality、embedder 组合成 `FacePipelineAnalyzer`。
 - `native_analyzer.py`：当前原生模型运行器，加载 SCRFD、2d106det、CR-FIQA-L 和 CVLFace KPRPE。
 - `auth.py`：Bearer token 校验。
@@ -65,4 +65,3 @@ API 层使用单个 `asyncio.Semaphore(1)` 包住模型推理，避免多个请�
 ## 可扩展点
 
 唯一推荐模型扩展点是 `FACE_ANALYZER_FACTORY=module:function`。该函数接收 `Settings`，返回满足 `FaceAnalyzer` 协议的对象。新增实现必须保持公开 API 和响应结构兼容。
-

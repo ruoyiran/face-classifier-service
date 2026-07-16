@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -145,9 +146,13 @@ def test_prepare_onnxruntime_cuda_dlls_adds_torch_lib(
 
     monkeypatch.setitem(sys.modules, "torch", fake_torch)
     monkeypatch.setattr(
-        native_analyzer.os,
-        "add_dll_directory",
-        lambda path: added.append(Path(path)),
+        native_analyzer,
+        "os",
+        SimpleNamespace(
+            name="nt",
+            environ=native_analyzer.os.environ,
+            add_dll_directory=lambda path: added.append(Path(path)),
+        ),
     )
     monkeypatch.delenv("CUDA_PATH", raising=False)
     monkeypatch.delenv("CUDA_HOME", raising=False)

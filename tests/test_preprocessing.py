@@ -85,6 +85,28 @@ def test_arcface_affine_matrix_maps_landmarks_to_fixed_template() -> None:
     np.testing.assert_allclose(transformed, ARCFACE_TEMPLATE_112, atol=1e-4)
 
 
+def test_arcface_affine_matrix_is_similarity_transform_without_shear() -> None:
+    source = np.array(ARCFACE_TEMPLATE_112, dtype=np.float32)
+    source = source + np.array(
+        [
+            [2.5, -1.0],
+            [-1.0, 1.5],
+            [0.5, 0.0],
+            [-2.0, 1.0],
+            [1.0, -1.5],
+        ],
+        dtype=np.float32,
+    )
+
+    matrix = arcface_affine_matrix(source)
+    linear = matrix[:, :2]
+
+    gram = linear.T @ linear
+    scale_sq = float(np.trace(gram) / 2.0)
+    np.testing.assert_allclose(gram, np.eye(2, dtype=np.float32) * scale_sq, atol=1e-5)
+    assert np.linalg.det(linear) > 0.0
+
+
 def test_transform_points_applies_affine_matrix() -> None:
     points = np.array([[10.0, 20.0], [30.0, 40.0]], dtype=np.float32)
     matrix = np.array([[2.0, 0.0, 1.0], [0.0, 3.0, -2.0]], dtype=np.float32)

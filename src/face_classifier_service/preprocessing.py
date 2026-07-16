@@ -17,7 +17,7 @@ if register_heif_opener is not None:  # pragma: no cover - depends on optional p
 
 
 ALIGNED_CROP_SIZE = 112
-PREPROCESS_ID = "arcface_112_rgb_mean0.5_std0.5"
+PREPROCESS_ID = "arcface_112_similarity_rgb_mean0.5_std0.5"
 ARCFACE_TEMPLATE_112 = [
     [38.2946, 51.6963],
     [73.5318, 51.5014],
@@ -149,10 +149,32 @@ def arcface_affine_matrix(
     target = np.asarray(template, dtype=np.float32)
     if source.shape != (5, 2):
         raise ValueError("landmarks5 must have shape (5, 2)")
-    design = np.concatenate([source, np.ones((5, 1), dtype=np.float32)], axis=1)
-    coeff_x, *_ = np.linalg.lstsq(design, target[:, 0], rcond=None)
-    coeff_y, *_ = np.linalg.lstsq(design, target[:, 1], rcond=None)
-    return np.vstack([coeff_x, coeff_y]).astype(np.float32)
+    if target.shape != (5, 2):
+        raise ValueError("template must have shape (5, 2)")
+
+    source_mean = source.mean(axis=0)
+    target_mean = target.mean(axis=0)
+    source_centered = source - source_mean
+    target_centered = target - target_mean
+    source_variance = float(np.mean(np.sum(source_centered * source_centered, axis=1)))
+    if source_variance <= np.finfo(np.float32).eps:
+        raise ValueError("landmarks5 points must not be degenerate")
+
+    covariance = (target_centered.T @ source_centered) / source.shape[0]
+    u, singular_values, vt = np.linalg.svd(covariance)
+    no_reflection = np.ones(2, dtype=np.float32)
+    if np.linalg.det(u @ vt) < 0.0:
+        no_reflection[-1] = -1.0
+
+    rotation = u @ np.diag(no_reflection) @ vt
+    scale = float(np.sum(singular_values * no_reflection) / source_variance)
+    linear = (scale * rotation).astype(np.float32)
+    translation = target_mean - linear @ source_mean
+
+    matrix = np.empty((2, 3), dtype=np.float32)
+    matrix[:, :2] = linear
+    matrix[:, 2] = translation.astype(np.float32)
+    return matrix
 
 
 def transform_points(points: list[list[float]] | np.ndarray, matrix: np.ndarray) -> np.ndarray:

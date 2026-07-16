@@ -77,13 +77,13 @@ POST /face/v1/faces/analyze
             "score": 0.77,
             "diagnostics": {
               "score_type": "raw_cr_fiqa_qs",
-              "preprocess_id": "arcface_112_rgb_mean0.5_std0.5"
+              "preprocess_id": "arcface_112_similarity_rgb_mean0.5_std0.5"
             }
           },
           "embedding": {
             "model_id": "minchul/cvlface_adaface_vit_base_kprpe_webface12m",
             "dim": 512,
-            "preprocess_id": "arcface_112_rgb_mean0.5_std0.5",
+            "preprocess_id": "arcface_112_similarity_rgb_mean0.5_std0.5",
             "normalized": true,
             "format": "float32_base64",
             "vector": "..."

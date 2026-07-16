@@ -88,7 +88,7 @@ class FakeAnalyzer:
             else None,
             embedding=EmbeddingResult(
                 model_id="minchul/cvlface_adaface_vit_base_kprpe_webface12m",
-                preprocess_id="arcface_112_rgb_mean0.5_std0.5",
+                preprocess_id="arcface_112_similarity_rgb_mean0.5_std0.5",
                 vector=np.array(self.embedding_vector, dtype=np.float32),
             )
             if options.need_embedding
@@ -421,7 +421,7 @@ def test_embed_returns_l2_normalized_float32_base64_embedding_by_default() -> No
     embedding = response.json()["results"][0]["faces"][0]["embedding"]
     assert embedding["model_id"] == "minchul/cvlface_adaface_vit_base_kprpe_webface12m"
     assert embedding["dim"] == 2
-    assert embedding["preprocess_id"] == "arcface_112_rgb_mean0.5_std0.5"
+    assert embedding["preprocess_id"] == "arcface_112_similarity_rgb_mean0.5_std0.5"
     assert embedding["normalized"] is True
     assert embedding["format"] == "float32_base64"
     np.testing.assert_allclose(decode_float32_base64(embedding["vector"]), [0.6, 0.8])
